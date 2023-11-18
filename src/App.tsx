@@ -85,14 +85,27 @@ const App = () => {
     setSelectedNote(null);
   };
 
+  const deleteNote = (
+    e: React.MouseEvent,
+    noteId: number
+  ) => {
+    e.stopPropagation();
+
+    const updatedNotes = notes.filter(
+      (note) => note.id !== noteId
+    );
+
+    setNotes(updatedNotes);
+  };
+
   return (
     <div className='app-container'>
       <form
         className='note-form'
         onSubmit={(e) =>
           selectedNote
-          ? handleUpdateNote(e)
-          : handleAddNote(e)
+            ? handleUpdateNote(e)
+            : handleAddNote(e)
         }
       >
         <input placeholder='Title'
@@ -126,7 +139,13 @@ const App = () => {
             onClick={() => handleNoteClick(note)}
           >
             <div className='notes-header'>
-              <button>x</button>
+              <button
+                onClick={(e) =>
+                  deleteNote(e, note.id)
+                }
+              >
+                x
+              </button>
             </div>
             <h2>{note.title}</h2>
             <p>{note.content}</p>
