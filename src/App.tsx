@@ -32,23 +32,34 @@ const App = () => {
     setContent(content);
   };
 
-  const handleAddNote = (
+  const handleAddNote = async (
     e: React.FormEvent
   ) => {
     e.preventDefault();
+    try {
+      const response = await fetch("http://localhost:5001/api/notes",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            content
+          })
+        });
 
-    const newNote: Note = {
-      id: notes.length + 1,
-      title: title,
-      content: content,
-    };
+      const newNote = await response.json();
 
-    setNotes([newNote, ...notes]);
-    setTitle(title);
-    setContent(content);
+      setNotes([newNote, ...notes]);
+      setTitle("");
+      setContent("");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
-  const handleUpdateNote = (
+  const handleUpdateNote = async (
     e: React.FormEvent
   ) => {
     e.preventDefault();
@@ -57,22 +68,35 @@ const App = () => {
       return;
     }
 
-    const updatedNote: Note = {
-      id: selectedNote.id,
-      title: title,
-      content: content,
-    };
+    try {
+      const response = await fetch(`http://localhost:5001/api/notes/${selectedNote.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            title,
+            content,
+          })
+        }
+      );
 
-    const updatedNotesList = notes.map((note) =>
-      note.id === selectedNote.id
-        ? updatedNote
-        : note
-    );
+      const updatedNote = await response.json();
 
-    setNotes(updatedNotesList);
-    setTitle("");
-    setContent("");
-    setSelectedNote(null);
+      const updatedNotesList = notes.map((note) =>
+        note.id === selectedNote.id
+          ? updatedNote
+          : note
+      );
+
+      setNotes(updatedNotesList);
+      setTitle("");
+      setContent("");
+      setSelectedNote(null);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   const handleCancel = () => {
@@ -81,17 +105,27 @@ const App = () => {
     setSelectedNote(null);
   };
 
-  const deleteNote = (
+  const deleteNote = async (
     e: React.MouseEvent,
     noteId: number
   ) => {
     e.stopPropagation();
 
-    const updatedNotes = notes.filter(
-      (note) => note.id !== noteId
-    );
+    try {
+      await fetch(`http://localhost:5001/api/notes/${noteId}`,
+        {
+          method: "DELETE",
+        }
+      );
 
-    setNotes(updatedNotes);
+      const updatedNotes = notes.filter(
+        (note) => note.id !== noteId
+      );
+
+      setNotes(updatedNotes);
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
